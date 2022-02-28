@@ -6,9 +6,11 @@ const userRouter = express.Router()
 const USERS = {
     3 : {
         nickname : 'foo',
+        profileImage : undefined
     },
     4 : {
         nickname : 'bar',
+        profileImage : undefined
     }
 }
 
@@ -17,9 +19,16 @@ userRouter.get('/', (req, res) => {
 })
 
 userRouter.param('id', (req, res, next, value) => {
-    console.log('value : ', value)
     //@ts-ignore
-    req.user = USERS[value]
+    const user = USERS[value]
+    if(!user) {
+        const err =  new Error('User Not Found!')
+        err.statusCode = 404
+
+        throw err
+    }
+
+    req.user = user
     next()
 })
 
@@ -33,6 +42,7 @@ userRouter.get('/:id', (req, res) => {
         res.render('user-profile', {
             //@ts-ignore  
             nickname: req.user.nickname,
+            userId: req.params.id,
         })
     }
 })
